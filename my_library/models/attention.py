@@ -250,7 +250,7 @@ class SequenceToSequence(Model):
         return metric_results
 
     def write_to_file(self, json_instance):
-        if os.path.exists(not self.first_dump):
+        if not self.first_dump:
             append_write = 'a'  # append if already exists
         else:
             append_write = 'w'  # make a new file if not
