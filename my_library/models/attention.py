@@ -12,7 +12,7 @@ from allennlp.modules.token_embedders import Embedding
 from allennlp.nn import RegularizerApplicator, util
 from overrides import overrides
 from my_library.my_loss_metric import BELU
-import os,json
+import os, json
 
 @Model.register("attention")
 class SequenceToSequence(Model):
@@ -34,13 +34,14 @@ class SequenceToSequence(Model):
                  target_namespace: str = "target",
 
                  # Hyperparamters and flags.
+
                  decoder_attention_function: BilinearAttention = None,
                  decoder_is_bidirectional: bool = False,
                  decoder_num_layers: int = 1,
                  apply_attention: bool = False,
                  max_decoding_steps: int = 100,
-                 scheduled_sampling_ratio: float = 100.0,
-                 attention_file : str = "attention_data.jsonl",
+                 # scheduled_sampling_ratio: float = 0.0,
+                 attention_file: str = "attention_data.jsonl",
 
                  regularizer: Optional[RegularizerApplicator] = None) -> None:
         super().__init__(vocab, regularizer)
@@ -73,7 +74,7 @@ class SequenceToSequence(Model):
             bias=True,
             bidirectional=decoder_is_bidirectional
         )
-        self.output_projection_layer = torch.nn.Linear(hidden_size,len(vocab._token_to_index['target']))
+        self.output_projection_layer = torch.nn.Linear(hidden_size, len(vocab._token_to_index['target']))
         self.apply_attention = apply_attention
         self.decoder_attention_function = decoder_attention_function or BilinearAttention(
             matrix_dim=hidden_size,
@@ -82,7 +83,7 @@ class SequenceToSequence(Model):
 
         # Hyperparameters.
         self._max_decoding_steps = max_decoding_steps
-        self._scheduled_sampling_ratio = scheduled_sampling_ratio
+        # self._scheduled_sampling_ratio = scheduled_sampling_ratio
 
         self._decoder_is_lstm = isinstance(self.decoder, torch.nn.LSTM)
         self._decoder_is_gru = isinstance(self.decoder, torch.nn.GRU)
@@ -100,7 +101,7 @@ class SequenceToSequence(Model):
     def forward(self,source, source_clean, target = None ,target_clean = None,analyze_instance = False) -> Dict[str, torch.Tensor]:
         # couldn't run this with batch larger than 1
         # if self._decoder_is_gru:
-            # self.decoder.flatten_parameters()
+        # self.decoder.flatten_parameters()
         attentions_to_keep = []
         source_sequence_encoded = self.encode_input(source)
 
@@ -121,15 +122,15 @@ class SequenceToSequence(Model):
         step_logits, step_probabilities, step_predictions = [], [], []
         decoder_hidden = self.init_decoder_hidden_state(source_encoded)
         for timestep in range(num_decoding_steps):
-            if self.training and torch.rand(1).item() >= self._scheduled_sampling_ratio:
+            if self.training:
                 input_choices = target_tokens[:, timestep]
             else:
                 if timestep == 0:  # Initialize decoding with the start token.
                     input_choices = (torch.ones((batch_size,)) * self._start_index).long()
                 else:
                     input_choices = last_predictions
-            decoder_input,the_attention = self.prepare_decode_step_input(input_choices, decoder_hidden,
-                                                           source_sequence_encoded,source_encoded)
+            decoder_input, the_attention = self.prepare_decode_step_input(input_choices, decoder_hidden,
+                                                                          source_sequence_encoded, source_encoded)
             # if len(decoder_input.shape) < 3:
             decoder_input = decoder_input.unsqueeze(1)
 
@@ -142,20 +143,19 @@ class SequenceToSequence(Model):
             step_logits.append(output_projection.unsqueeze(1))
 
             # Collect predicted classes and their probabilities.
-            class_probabilities = F.softmax(output_projection, dim=-1)
-            _, predicted_classes = torch.max(class_probabilities, 1)
-            step_probabilities.append(class_probabilities.unsqueeze(1))
+            # class_probabilities = F.softmax(output_projection, dim=-1)
+            _, predicted_classes = torch.max(output_projection, 1)
+            # step_probabilities.append(class_probabilities.unsqueeze(1))
             step_predictions.append(predicted_classes.unsqueeze(1))
             last_predictions = predicted_classes
-            if analyze_instance:
+            if analyze_instance and self.apply_attention:
                 attentions_to_keep.append(the_attention[0].detach().cpu().tolist())
 
-
         logits = torch.cat(step_logits, 1)
-        class_probabilities = torch.cat(step_probabilities, 1)
+        # class_probabilities = torch.cat(step_probabilities, 1)
         all_predictions = torch.cat(step_predictions, 1)
         output_dict = {"logits": logits,
-                       "class_probabilities": class_probabilities,
+                       # "class_probabilities": class_probabilities,
                        "predictions": all_predictions}
         if target:
             target_mask = util.get_text_field_mask(target)
@@ -166,12 +166,12 @@ class SequenceToSequence(Model):
             self.decode(output_dict)
             self.metrics['BELU'](output_dict["predicted_tokens"], target_clean)
             if analyze_instance:
-                line = {"source":source_clean,"target":target_clean,"attention":attentions_to_keep}
+                line = {"source": source_clean, "target": target_clean, "attention": attentions_to_keep}
                 self.write_to_file(line)
 
         return output_dict
 
-    def encode_input(self, source: Dict[str, torch.LongTensor]) -> Tuple[torch.FloatTensor,                                                                         torch.FloatTensor]:
+    def encode_input(self, source: Dict[str, torch.LongTensor]) -> Tuple[torch.FloatTensor, torch.FloatTensor]:
         """
         Required shapes: (batch_size, sequence_length, decoder_hidden_size)
         """
@@ -185,7 +185,7 @@ class SequenceToSequence(Model):
         """
         decoder_primer = source_sequence_encoded.unsqueeze(0)
         decoder_primer = decoder_primer.expand(
-                self._decoder_num_layers, -1, self.encoder.hidden_size
+            self._decoder_num_layers, -1, self.encoder.hidden_size
         )
 
         # If the decoder is an LSTM, we need to initialize a cell state.
@@ -218,11 +218,11 @@ class SequenceToSequence(Model):
             # (batch_size, encoder_output_dim)
             attended_input = util.weighted_sum(encoder_outputs, input_weights)
             # (batch_size, encoder_output_dim + target_embedding_dim)
-            return torch.cat((attended_input, embedded_input), -1),input_weights
+            return torch.cat((attended_input, embedded_input), -1), input_weights
         else:
-            return torch.cat((source_encoded, embedded_input), -1),None
+            return torch.cat((source_encoded, embedded_input), -1), None
 
-    @overrides
+    # @overrides
     def decode(self, output_dict: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         predicted_indices = output_dict["predictions"]
         if not isinstance(predicted_indices, np.ndarray):
@@ -249,7 +249,7 @@ class SequenceToSequence(Model):
 
         return metric_results
 
-    def write_to_file(self,json_instance):
+    def write_to_file(self, json_instance):
         if os.path.exists(not self.first_dump):
             append_write = 'a'  # append if already exists
         else:
@@ -257,6 +257,5 @@ class SequenceToSequence(Model):
             self.first_dump = False
         with open(self.attention_file, append_write) as fw:
             # for m,values in data_results.items():
-            fw.write(json.dumps(json_instance)+"\n")
+            fw.write(json.dumps(json_instance) + "\n")
             # fw.write("\n")
-

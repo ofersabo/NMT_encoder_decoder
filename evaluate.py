@@ -4,15 +4,16 @@ import sys
 
 from allennlp.commands import main
 
-# model_location = sys.argv[1]
-# src_location = sys.argv[2]
-# trg_location = sys.argv[3]
-# output = sys.argv[4]
+model_location = sys.argv[1]
+src_location = sys.argv[2]
+trg_location = sys.argv[3]
+output = sys.argv[4]
 
-model_location = "attention"
-src_location = 'data/test.src'
-trg_location = 'data/test.trg'
-output = 'here'
+if len(sys.argv) < 4:
+    model_location = "attention"
+    src_location = 'data/test.src'
+    trg_location = 'data/test.trg'
+    output = 'here'
 
 locations = src_location + " " + trg_location
 
