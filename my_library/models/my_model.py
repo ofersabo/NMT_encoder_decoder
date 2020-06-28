@@ -14,7 +14,7 @@ from overrides import overrides
 from my_library.my_loss_metric import BELU
 import os, json
 
-@Model.register("attention")
+@Model.register("my_model")
 class SequenceToSequence(Model):
     """
     Base class for sequence-to-sequence models.
@@ -97,7 +97,7 @@ class SequenceToSequence(Model):
         self._target_namespace = target_namespace
         self.count = 0
         self.first_dump = True
-        self.device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     @overrides
     def forward(self,source, source_clean, target = None ,target_clean = None,analyze_instance = False) -> Dict[str, torch.Tensor]:
