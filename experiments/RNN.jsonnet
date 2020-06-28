@@ -1,4 +1,4 @@
-local cuda = [0];
+local cuda = [1];
 //local cuda = [0,1,2,3,4,5,6,7];
 //local cuda = [0,1,2,3];
 //local bert_type = 'bert-base-cased';
@@ -9,8 +9,8 @@ local test_data = "data/test.src data/test.trg";
 
 local batch_size = 1;
 local lr_with_find = 0.001;
-local hidden_size = 75;
-local embedding_size = 150;
+local hidden_size = 550;
+local embedding_size = 950;
 //local instances_per_epoch = null;
 
 {
@@ -33,6 +33,7 @@ local embedding_size = 150;
 //  "test_data_path": test_data[setup],
  "model": {
         "type": "attention",
+        "decoder_type":"gru",
         "source_text_field_embedder": {
             "token_embedders": {
                 "tokens": {
@@ -54,7 +55,8 @@ local embedding_size = 150;
 //        },
         "hidden_size":hidden_size,
         "target_embedding_size":embedding_size,
-        "apply_attention":true,
+        "apply_attention":false,
+        "drop_out_rate":0.3,
     },
   "iterator": {
     "type": "basic",

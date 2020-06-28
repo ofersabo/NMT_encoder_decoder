@@ -42,7 +42,7 @@ local embedding_size = 150;
                 },
             }
         },
-    "regularizer": [[".*", {"type": "l2", "alpha": 1e-5}]],
+//    "regularizer": [[".*", {"type": "l2", "alpha": 1e-5}]],
 //        "target_text_field_embedder": {
 //            "token_embedders": {
 //                "tokens": {
@@ -59,12 +59,12 @@ local embedding_size = 150;
   "iterator": {
     "type": "basic",
     "batch_size": batch_size,
-    "instances_per_epoch": null
+//    "instances_per_epoch": null
   },
     "validation_iterator": {
     "type": "basic",
     "batch_size": batch_size,
-    "instances_per_epoch": null
+//    "instances_per_epoch": null
   },
   "trainer": {
     "optimizer": {
