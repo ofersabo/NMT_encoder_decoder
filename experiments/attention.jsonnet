@@ -8,9 +8,12 @@ local test_data = "data/test.src data/test.trg";
 
 
 local batch_size = 1;
-local lr_with_find = 0.001;
-local hidden_size = 75;
-local embedding_size = 150;
+local lr_with_find = 0.0007355253529183;
+local hidden_size = 250;
+local embedding_size = 50;
+local drop_out_rate = 0.054145200158513054;
+local decoder_type = 'gru';
+
 //local instances_per_epoch = null;
 
 {
@@ -32,7 +35,8 @@ local embedding_size = 150;
   "validation_data_path": dev_data,
 //  "test_data_path": test_data[setup],
  "model": {
-        "type": "attention",
+        "type": "my_model",
+        "decoder_type":decoder_type,
         "source_text_field_embedder": {
             "token_embedders": {
                 "tokens": {
@@ -55,6 +59,7 @@ local embedding_size = 150;
         "hidden_size":hidden_size,
         "target_embedding_size":embedding_size,
         "apply_attention":true,
+        "drop_out_rate":drop_out_rate,
     },
   "iterator": {
     "type": "basic",
