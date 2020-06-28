@@ -34,6 +34,7 @@ class SequenceToSequence(Model):
                  target_namespace: str = "target",
 
                  # Hyperparamters and flags.
+                 drop_out_rate: float = 0.0,
 
                  decoder_attention_function: BilinearAttention = None,
                  decoder_is_bidirectional: bool = False,
@@ -64,6 +65,7 @@ class SequenceToSequence(Model):
         # self.analyze_this_target = START_SYMBOL + " S T A I R C A S E . . . " + END_SYMBOL
         self.attention_file = attention_file
 
+        self.dropout = torch.nn.Dropout(p=drop_out_rate)
         # Hidden size of the encoder and decoder should match.
         decoder_hidden_size = hidden_size
         self.decoder = SequenceToSequence.DECODERS[decoder_type](
@@ -95,7 +97,7 @@ class SequenceToSequence(Model):
         self._target_namespace = target_namespace
         self.count = 0
         self.first_dump = True
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device("cuda:1" if torch.cuda.is_available() else "cpu")
 
     @overrides
     def forward(self,source, source_clean, target = None ,target_clean = None,analyze_instance = False) -> Dict[str, torch.Tensor]:
@@ -175,7 +177,9 @@ class SequenceToSequence(Model):
         """
         Required shapes: (batch_size, sequence_length, decoder_hidden_size)
         """
-        source_sequence_embedded = self.source_field_embedder(source)
+        source_sequence_embedded = self.source_field_embedder(source).to(self.device)
+        source_sequence_embedded = self.dropout(source_sequence_embedded)
+
         encoded_source_sequence = self.encoder(source_sequence_embedded)
         return encoded_source_sequence[0]
 
