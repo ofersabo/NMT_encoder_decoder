@@ -23,7 +23,7 @@ for epoch_index,l in enumerate(lines,1):
     y = y[0]
     sub_title = " ".join(x.split()[1:-1]) +" ->\n"+ " ".join(y.split()[1:-1])
     plt.figure(epoch_index)
-    full_title = "attention based alignment:\n" + sub_title
+    full_title = "attention based alignment epoch "+str(epoch_index) +":\n" + sub_title
     # ax.set_title(full_title)
     plt.title(full_title,fontsize=8)
     ax = sns.heatmap(row, xticklabels=x.split(), yticklabels=y.split()[1:],cmap="Blues",annot=True, fmt='.2f')
