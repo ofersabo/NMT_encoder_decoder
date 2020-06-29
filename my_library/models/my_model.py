@@ -23,6 +23,7 @@ class SequenceToSequence(Model):
     def __init__(self,
                  # Vocabluary.
                  vocab: Vocabulary,
+                 cuda_device,
 
                  # Embeddings.
                  source_text_field_embedder: TextFieldEmbedder,
@@ -97,7 +98,10 @@ class SequenceToSequence(Model):
         self._target_namespace = target_namespace
         self.count = 0
         self.first_dump = True
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        if cuda_device[0] == -1 or cuda_device == -1:
+            self.device = torch.device("cpu")
+        else:
+            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
     @overrides
     def forward(self,source, source_clean, target = None ,target_clean = None,analyze_instance = False) -> Dict[str, torch.Tensor]:

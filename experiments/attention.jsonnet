@@ -1,4 +1,4 @@
-local cuda = [0];
+local cuda = [-1];
 //local cuda = [0,1,2,3,4,5,6,7];
 //local cuda = [0,1,2,3];
 //local bert_type = 'bert-base-cased';
@@ -37,6 +37,7 @@ local decoder_type = 'gru';
  "model": {
         "type": "my_model",
         "decoder_type":decoder_type,
+        "cuda_device":cuda,
         "source_text_field_embedder": {
             "token_embedders": {
                 "tokens": {
