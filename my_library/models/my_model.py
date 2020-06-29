@@ -16,9 +16,6 @@ import os, json
 
 @Model.register("my_model")
 class SequenceToSequence(Model):
-    """
-    Base class for sequence-to-sequence models.
-    """
     DECODERS = {"rnn": torch.nn.RNN, "lstm": torch.nn.LSTM, "gru": torch.nn.GRU}
     def __init__(self,
                  # Vocabluary.
@@ -101,13 +98,11 @@ class SequenceToSequence(Model):
         if cuda_device[0] == -1 or cuda_device == -1:
             self.device = torch.device("cpu")
         else:
-            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            cuda ="cuda:" + str(cuda_device[0])
+            self.device = torch.device(cuda if torch.cuda.is_available() else "cpu")
 
     @overrides
     def forward(self,source, source_clean, target = None ,target_clean = None,analyze_instance = False) -> Dict[str, torch.Tensor]:
-        # couldn't run this with batch larger than 1
-        # if self._decoder_is_gru:
-        # self.decoder.flatten_parameters()
         attentions_to_keep = []
         source_sequence_encoded = self.encode_input(source)
 
@@ -137,7 +132,6 @@ class SequenceToSequence(Model):
                     input_choices = last_predictions
             decoder_input, the_attention = self.prepare_decode_step_input(input_choices, decoder_hidden,
                                                                           source_sequence_encoded, source_encoded)
-            # if len(decoder_input.shape) < 3:
             decoder_input = decoder_input.unsqueeze(1)
 
             _, decoder_hidden = self.decoder(decoder_input, decoder_hidden)
@@ -148,10 +142,7 @@ class SequenceToSequence(Model):
                                                              else decoder_hidden[-1])
             step_logits.append(output_projection.unsqueeze(1))
 
-            # Collect predicted classes and their probabilities.
-            # class_probabilities = F.softmax(output_projection, dim=-1)
             _, predicted_classes = torch.max(output_projection, 1)
-            # step_probabilities.append(class_probabilities.unsqueeze(1))
             step_predictions.append(predicted_classes.unsqueeze(1))
             last_predictions = predicted_classes
             if analyze_instance and self.apply_attention:
@@ -196,7 +187,6 @@ class SequenceToSequence(Model):
             self._decoder_num_layers, -1, self.encoder.hidden_size
         )
 
-        # If the decoder is an LSTM, we need to initialize a cell state.
         if self._decoder_is_lstm:
             decoder_primer = (decoder_primer, torch.zeros_like(decoder_primer))
 
@@ -209,13 +199,12 @@ class SequenceToSequence(Model):
                                   source_encoded: torch.LongTensor
                                   ) -> torch.LongTensor:
         """
-        input_indices : torch.LongTensor
-            Indices of either the gold inputs to the decoder or the predicted labels from the
+        input_indices Indices of either the gold inputs to the decoder or the predicted labels from the
             previous timestep.
-        decoder_hidden : torch.LongTensor, optional (not needed if no attention)
-            Output from the decoder at the last time step. Needed only if using attention.
-        encoder_outputs : torch.LongTensor, optional (not needed if no attention)
-            Encoder outputs from all time steps. Needed only if using attention.
+        decoder_hidden : torch.LongTensor
+            Output from the decoder at the last time step.
+        encoder_outputs : torch.LongTensor
+            Encoder outputs from all time steps.
         """
         embedded_input = self.target_embedder(input_indices.to(self.device))
         if self.apply_attention:
@@ -230,7 +219,6 @@ class SequenceToSequence(Model):
         else:
             return torch.cat((source_encoded, embedded_input), -1), None
 
-    # @overrides
     def decode(self, output_dict: Dict[str, torch.Tensor]) -> Dict[str, torch.Tensor]:
         predicted_indices = output_dict["predictions"]
         if not isinstance(predicted_indices, np.ndarray):

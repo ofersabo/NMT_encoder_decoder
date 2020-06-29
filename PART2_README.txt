@@ -3,7 +3,7 @@
 # To train the model in part 2 please use this command line:
 
 On CPU:
-allennlp train experiments/attention.jsonnet -s save_model_to_this_output_dir --include-package my_library
+allennlp train experiments/attention.jsonnet -s save_model_to_this_output_dir --include-package my_library -f
 
 On GPU:
 allennlp train experiments/attention.jsonnet -s save_model_to_this_output_dir --include-package my_library -f -o '{"model":{"cuda_device":[0]},"trainer":{"cuda_device":[0]}}'
