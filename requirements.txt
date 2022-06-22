@@ -43,7 +43,7 @@ matplotlib==3.2.1
 more-itertools==8.4.0
 murmurhash==1.0.2
 nltk==3.5
-numpy==1.18.5
+numpy==1.22.0
 numpydoc==1.0.0
 overrides==3.0.0
 packaging==20.4
