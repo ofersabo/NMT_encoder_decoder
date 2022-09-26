@@ -54,7 +54,7 @@ pluggy==0.13.1
 portalocker==1.7.0
 preshed==2.0.1
 protobuf==3.15.0
-py==1.8.2
+py==1.10.0
 Pygments==2.6.1
 pyparsing==2.4.7
 pytest==5.4.3
