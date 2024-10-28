@@ -1,7 +1,7 @@
 alabaster==0.7.12
 allennlp==0.9.0
 attrs==19.3.0
-Babel==2.8.0
+Babel==2.9.1
 blis==0.2.4
 boto3==1.14.4
 botocore==1.17.4
@@ -20,7 +20,7 @@ editdistance==0.5.3
 filelock==3.0.12
 flaky==3.6.1
 Flask==1.1.2
-Flask-Cors==3.0.8
+Flask-Cors==3.0.9
 flatbuffers==1.12
 ftfy==5.7
 funcsigs==1.0.2
@@ -32,9 +32,9 @@ idna==2.9
 imagesize==1.2.0
 importlib-metadata==1.6.1
 itsdangerous==1.1.0
-Jinja2==2.11.2
+Jinja2==2.11.3
 jmespath==0.10.0
-joblib==0.15.1
+joblib==1.2.0
 jsonnet==0.16.0
 jsonpickle==1.4.1
 kiwisolver==1.2.0
@@ -43,7 +43,7 @@ matplotlib==3.2.1
 more-itertools==8.4.0
 murmurhash==1.0.2
 nltk==3.6.6
-numpy==1.18.5
+numpy==1.22.0
 numpydoc==1.0.0
 overrides==3.0.0
 packaging==20.4
@@ -53,9 +53,9 @@ plac==0.9.6
 pluggy==0.13.1
 portalocker==1.7.0
 preshed==2.0.1
-protobuf==3.15.0
-py==1.8.2
-Pygments==2.6.1
+protobuf==3.18.3
+py==1.10.0
+Pygments==2.7.4
 pyparsing==2.4.7
 pytest==5.4.3
 pytest-cov==2.10.0
@@ -63,7 +63,7 @@ python-dateutil==2.8.1
 pytorch-pretrained-bert==0.6.2
 pytorch-transformers==1.1.0
 pytz==2020.1
-PyYAML==5.3.1
+PyYAML==5.4
 ray==0.6.2
 redis==3.5.3
 regex==2020.6.8
@@ -96,7 +96,7 @@ torch==1.4.0
 tqdm==4.46.1
 transformers==2.11.0
 Unidecode==1.1.1
-urllib3==1.25.9
+urllib3==1.26.5
 wasabi==0.6.0
 wcwidth==0.2.4
 Werkzeug==2.2.3
